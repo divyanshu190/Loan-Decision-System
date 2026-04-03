@@ -1,48 +1,53 @@
-# Loan Default Decision System 
+# Loan Decision System
 
-## Dataset
+A production-style machine learning system for loan approval using ensemble modeling, anomaly detection, and cost-sensitive decisioning. Exposed via a Flask API for real-time credit risk evaluation.
 
-**Give Me Some Credit** (Kaggle Competition Dataset)  
-Real-world credit bureau data — 150,000 records, all numeric features.
+---
+
+## 📊 Dataset
+
+**Give Me Some Credit (Kaggle)** — real-world credit bureau dataset.
 
 | Property | Value |
 |---|---|
 | Rows | 150,000 |
 | Features | 10 numeric |
-| Target | `SeriousDlqin2yrs` (1=default, 0=repaid) |
-| Default rate | ~7% (imbalanced — handled by SMOTE) |
+| Target | `SeriousDlqin2yrs` (1 = default, 0 = repaid) |
+| Default rate | ~7% (highly imbalanced) |
 
-The dataset (`cs-training.csv`) is already included in this project.
-
----
-
-## How the Model Works
-
-```
-cs-training.csv
-      ↓
-  Validation & Cleaning (validator.py)
-      ↓
-  Missingness Indicators (missing income = signal of risk)
-      ↓
-  Preprocessing (median imputation → standard scaling)
-      ↓
-  SMOTE (oversample minority class — training only, no leakage)
-      ↓
-  ┌─────────────────────────────────────┐
-  │  XGBoost   LightGBM   Decision Tree │  ← 3 base models
-  └────────────────┬────────────────────┘
-                   ↓
-         Logistic Regression         ← meta-learner (stacking)
-                   ↓
-      Cost-optimized Threshold       ← FN costs 5× FP
-                   ↓
-        APPROVE / REJECT + Risk Factors
-```
+> Note: Dataset is used for training and evaluation only.
 
 ---
 
-## Installation
+## 🧠 Model Architecture
+
+```
+Raw Data
+   ↓
+Validation & Cleaning (validator.py)
+   ↓
+Feature Engineering (missingness indicators)
+   ↓
+Preprocessing (imputation + scaling)
+   ↓
+SMOTE (handle class imbalance)
+   ↓
+Stacked Ensemble:
+   - XGBoost
+   - LightGBM
+   - Decision Tree
+   ↓
+Meta-Learner:
+   - Logistic Regression
+   ↓
+Threshold Optimization (cost-sensitive)
+   ↓
+Final Decision: APPROVE / REJECT / REVIEW
+```
+
+---
+
+## ⚙️ Installation
 
 ```bash
 python -m venv venv
@@ -52,62 +57,65 @@ pip install -r requirements.txt
 
 ---
 
-## Step 1 — Train the model
+## ▶️ Run Full Pipeline
+
+```bash
+chmod +x run_all.sh
+./run_all.sh
+```
+
+This executes:
+- Model training  
+- Validation  
+- API startup  
+
+---
+
+## 🧪 Manual Training
 
 ```bash
 python train.py --data cs-training.csv
 ```
 
-Expected output (after ~5 min):
-```
-ROC-AUC Score          : ~0.86
-Average Precision Score: ~0.35
-Optimal threshold      : ~0.18  (cost-matrix optimized)
-```
-
-Training also prints:
-- Top 3 levels of the Decision Tree (interpretable rules)
-- XGBoost feature importance ranking
+Expected performance:
+- ROC-AUC ≈ 0.85+  
+- Cost-optimized threshold  
 
 ---
 
-## Step 2 — Test a single prediction
+## 🔌 API Usage
 
-```bash
-python predict.py
+### Endpoint
+```
+POST /predict
 ```
 
----
-
-## Step 3 — Run the API
+### Example Request
 
 ```bash
-python api/app.py
+curl -X POST http://127.0.0.1:5001/predict \
+-H "Content-Type: application/json" \
+-d '{
+  "age": 31,
+  "MonthlyIncome": 48765,
+  "DebtRatio": 0.27,
+  "RevolvingUtilizationOfUnsecuredLines": 0.36,
+  "NumberOfOpenCreditLinesAndLoans": 6,
+  "NumberOfTimes90DaysLate": 0,
+  "NumberOfTime60-89DaysPastDueNotWorse": 0,
+  "NumberOfTime30-59DaysPastDueNotWorse": 1,
+  "NumberRealEstateLoansOrLines": 1,
+  "NumberOfDependents": 2
+}'
 ```
 
-```bash
-curl -X POST http://localhost:5000/predict \
-  -H "Content-Type: application/json" \
-  -d '{
-    "RevolvingUtilizationOfUnsecuredLines": 0.05,
-    "age": 35,
-    "NumberOfTime30-59DaysPastDueNotWorse": 0,
-    "DebtRatio": 0.10,
-    "MonthlyIncome": 8000,
-    "NumberOfOpenCreditLinesAndLoans": 6,
-    "NumberOfTimes90DaysLate": 0,
-    "NumberRealEstateLoansOrLines": 1,
-    "NumberOfTime60-89DaysPastDueNotWorse": 0,
-    "NumberOfDependents": 1
-  }'
-```
+### Example Response
 
-Expected response:
 ```json
 {
   "decision": "APPROVE",
-  "default_prob": 0.041,
-  "confidence": "HIGH",
+  "default_prob": 0.0526,
+  "confidence": "MEDIUM",
   "risk_factors": ["Profile meets all standard credit criteria"],
   "warnings": [],
   "error": null
@@ -116,28 +124,49 @@ Expected response:
 
 ---
 
-## File Reference
+## 📁 Project Structure
 
-| File | Purpose |
-|---|---|
-| `config.py` | All settings (features, thresholds, cost matrix) |
-| `validator.py` | Catches bad/missing/corrupt data before it touches the model |
-| `train.py` | Full training pipeline |
-| `predict.py` | Production prediction engine + risk factor explanations |
-| `api/app.py` | REST API for deployment |
-| `cs-training.csv` | Dataset (150K real credit records) |
+```
+api/                  # Flask API
+train.py              # Training pipeline
+predict.py            # Inference logic
+validator.py          # Data validation
+validate_model.py     # Model evaluation
+config.py             # Configurations
+run_all.sh            # Automation script
+requirements.txt      # Dependencies
+```
 
 ---
 
-## Real-world problems handled
+## 🛠 Key Features
 
-| Problem | How it's handled |
-|---|---|
-| Missing numeric value | Median imputation |
-| Wrong data type (text in number field) | Coerced to NaN then imputed |
-| Impossible value (age=999) | Nulled then imputed |
-| >50% of row missing | Hard reject with error message |
-| Class imbalance (~7% defaults) | SMOTE oversampling (training only) |
-| Asymmetric error costs | Cost-matrix threshold optimization |
-| Decision explainability | Rule-based risk factor extraction |
-| Interpretability (PS-9) | Decision Tree visualization + feature importance |
+- Ensemble learning (XGBoost + LightGBM + Decision Tree)  
+- Stacking with Logistic Regression  
+- SMOTE for class imbalance  
+- Cost-sensitive threshold optimization  
+- Input validation and anomaly handling  
+- Risk factor explanations  
+- End-to-end automation via bash script  
+
+---
+
+## ⚠️ Real-World Considerations
+
+- Handles missing and corrupt inputs  
+- Detects unrealistic financial patterns  
+- Flags suspicious profiles  
+- Prevents data leakage  
+- Provides explainable decisions  
+
+---
+
+## 📜 License
+
+MIT License
+
+---
+
+## 👤 Author
+
+Divyanshu
