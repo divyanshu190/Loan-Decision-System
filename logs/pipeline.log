@@ -1,0 +1,488 @@
+2026-04-03 03:42:23,979  INFO      Loading dataset: cs-training.csv
+2026-04-03 03:42:24,027  INFO      Dropped unnamed index column(s): ['Unnamed: 0']
+2026-04-03 03:42:24,027  INFO      Raw shape: (150000, 11)
+2026-04-03 03:42:24,031  INFO      Dataset validation complete. Shape: (150000, 11)
+2026-04-03 03:42:24,031  WARNING     [age]  | 14 out-of-range → NaN
+2026-04-03 03:42:24,031  WARNING     [DebtRatio]  | 20602 out-of-range → NaN
+2026-04-03 03:42:24,031  WARNING     [RevolvingUtilizationOfUnsecuredLines]  | 230 out-of-range → NaN
+2026-04-03 03:42:24,034  INFO        Total missing after validation: 54501/1500000 (3.6%)
+2026-04-03 03:42:24,039  INFO      All feature columns passed the missing-value threshold.
+2026-04-03 03:42:24,041  INFO      Added 5 missingness indicator columns
+2026-04-03 03:42:24,041  INFO      Numeric features    : ['RevolvingUtilizationOfUnsecuredLines', 'age', 'NumberOfTime30-59DaysPastDueNotWorse', 'DebtRatio', 'MonthlyIncome', 'NumberOfOpenCreditLinesAndLoans', 'NumberOfTimes90DaysLate', 'NumberRealEstateLoansOrLines', 'NumberOfTime60-89DaysPastDueNotWorse', 'NumberOfDependents']
+2026-04-03 03:42:24,041  INFO      Categorical features: []
+2026-04-03 03:42:24,041  INFO      Indicator columns   : ['RevolvingUtilizationOfUnsecuredLines_was_missing', 'age_was_missing', 'DebtRatio_was_missing', 'MonthlyIncome_was_missing', 'NumberOfDependents_was_missing']
+2026-04-03 03:42:24,043  INFO      Target distribution :
+SeriousDlqin2yrs
+0    0.933
+1    0.067
+Name: proportion, dtype: float64
+2026-04-03 03:42:24,072  INFO      Train: (120000, 15)  |  Test: (30000, 15)
+2026-04-03 03:42:24,073  INFO      Training ensemble (XGBoost + LightGBM + DecisionTree → LogisticRegression)...
+2026-04-03 03:42:24,073  INFO      Expected time: 3-6 minutes on 150K rows...
+2026-04-03 03:42:40,159  INFO      Training complete.
+2026-04-03 03:42:40,386  INFO      
+Threshold optimization (business cost matrix):
+2026-04-03 03:42:40,387  INFO        Cost of False Negative (miss a default): 5.0x
+2026-04-03 03:42:40,387  INFO        Cost of False Positive (reject good applicant): 1.0x
+2026-04-03 03:42:40,430  INFO        → Optimal threshold: 0.21  (expected cost=6662)
+
+2026-04-03 03:42:40,430  INFO      
+============================================================
+2026-04-03 03:42:40,431  INFO      EVALUATION RESULTS
+2026-04-03 03:42:40,431  INFO      ============================================================
+2026-04-03 03:42:40,733  INFO      ROC-AUC Score          : 0.8570
+2026-04-03 03:42:40,733  INFO      Average Precision Score: 0.3676
+2026-04-03 03:42:40,733  INFO      F1 Score (thresh=0.21): 0.4135
+2026-04-03 03:42:40,733  INFO      
+Classification Report (threshold=0.21):
+2026-04-03 03:42:40,745  INFO      
+              precision    recall  f1-score   support
+
+      Repaid       0.97      0.91      0.94     27995
+     Default       0.32      0.58      0.41      2005
+
+    accuracy                           0.89     30000
+   macro avg       0.64      0.75      0.68     30000
+weighted avg       0.92      0.89      0.90     30000
+
+2026-04-03 03:42:40,746  INFO      Confusion Matrix:
+[[25523  2472]
+ [  838  1167]]
+2026-04-03 03:42:40,746  INFO        True Positives  (defaults correctly caught) : 1167
+2026-04-03 03:42:40,746  INFO        False Negatives (missed defaults — risky!)  : 838
+2026-04-03 03:42:40,746  INFO        False Positives (good applicants rejected)  : 2472
+2026-04-03 03:42:40,746  INFO        True Negatives  (correctly approved)        : 25523
+2026-04-03 03:42:40,746  INFO      ============================================================
+
+2026-04-03 03:42:40,746  INFO      
+============================================================
+2026-04-03 03:42:40,746  INFO      DECISION TREE — Top 3 Levels (PS-9 Interpretability)
+2026-04-03 03:42:40,746  INFO      ============================================================
+2026-04-03 03:42:40,746  INFO      
+|--- NumberOfTime30-59DaysPastDueNotWorse <= -0.10
+|   |--- NumberOfTimes90DaysLate <= -0.06
+|   |   |--- RevolvingUtilizationOfUnsecuredLines <= 0.23
+|   |   |   |--- NumberOfTime60-89DaysPastDueNotWorse <= -0.06
+|   |   |   |   |--- truncated branch of depth 5
+|   |   |   |--- NumberOfTime60-89DaysPastDueNotWorse >  -0.06
+|   |   |   |   |--- truncated branch of depth 5
+|   |   |--- RevolvingUtilizationOfUnsecuredLines >  0.23
+|   |   |   |--- NumberOfTime60-89DaysPastDueNotWorse <= -0.06
+|   |   |   |   |--- truncated branch of depth 5
+|   |   |   |--- NumberOfTime60-89DaysPastDueNotWorse >  -0.06
+|   |   |   |   |--- truncated branch of depth 5
+|   |--- NumberOfTimes90DaysLate >  -0.06
+|   |   |--- NumberOfTimes90DaysLate <= 0.18
+|   |   |   |--- class: 1
+|   |   |--- NumberOfTimes90DaysLate >  0.18
+|   |   |   |--- NumberOfTimes90DaysLate <= 0.18
+|   |   |   |   |--- truncated branch of depth 5
+|   |   |   |--- NumberOfTimes90DaysLate >  0.18
+|   |   |   |   |--- truncated branch of depth 5
+|--- NumberOfTime30-59DaysPastDueNotWorse >  -0.10
+|   |--- NumberOfTime30-59DaysPastDueNotWorse <= 0.14
+|   |   |--- class: 1
+|   |--- NumberOfTime30-59DaysPastDueNotWorse >  0.14
+|   |   |--- NumberOfTime30-59DaysPastDueNotWorse <= 0.14
+|   |   |   |--- NumberOfTimes90DaysLate <= -0.06
+|   |   |   |   |--- truncated branch of depth 5
+|   |   |   |--- NumberOfTimes90DaysLate >  -0.06
+|   |   |   |   |--- truncated branch of depth 5
+|   |   |--- NumberOfTime30-59DaysPastDueNotWorse >  0.14
+|   |   |   |--- NumberOfTimes90DaysLate <= -0.06
+|   |   |   |   |--- truncated branch of depth 5
+|   |   |   |--- NumberOfTimes90DaysLate >  -0.06
+|   |   |   |   |--- truncated branch of depth 5
+
+2026-04-03 03:42:40,746  INFO      ============================================================
+
+2026-04-03 03:42:40,747  INFO      
+============================================================
+2026-04-03 03:42:40,747  INFO      FEATURE IMPORTANCE — XGBoost (Gain-based, Top 10)
+2026-04-03 03:42:40,747  INFO      ============================================================
+2026-04-03 03:42:40,747  INFO        NumberOfTime30-59DaysPastDueNotWorse          0.3285  ██████████████████████████
+2026-04-03 03:42:40,747  INFO        NumberOfTimes90DaysLate                       0.2429  ███████████████████
+2026-04-03 03:42:40,747  INFO        NumberOfTime60-89DaysPastDueNotWorse          0.1230  █████████
+2026-04-03 03:42:40,747  INFO        NumberOfOpenCreditLinesAndLoans               0.0707  █████
+2026-04-03 03:42:40,747  INFO        RevolvingUtilizationOfUnsecuredLines          0.0551  ████
+2026-04-03 03:42:40,747  INFO        age                                           0.0376  ███
+2026-04-03 03:42:40,747  INFO        MonthlyIncome_was_missing                     0.0304  ██
+2026-04-03 03:42:40,747  INFO        NumberOfDependents_was_missing                0.0291  ██
+2026-04-03 03:42:40,747  INFO        NumberRealEstateLoansOrLines                  0.0226  █
+2026-04-03 03:42:40,747  INFO        DebtRatio_was_missing                         0.0128  █
+2026-04-03 03:42:40,747  INFO      ============================================================
+
+2026-04-03 03:42:40,747  INFO      Training IsolationForest anomaly detector...
+2026-04-03 03:42:40,760  INFO        IsolationForest training on 111,979 legitimate records (non-default subset)
+2026-04-03 03:42:41,616  INFO        IsolationForest trained. Contamination set to 2%.
+2026-04-03 03:42:41,616  INFO        Applications deviating from this distribution will be flagged SUSPICIOUS.
+2026-04-03 03:42:41,620  INFO        Anomaly detector saved to: models/anomaly_detector.pkl
+2026-04-03 03:42:41,634  INFO      Main model saved to    : models/loan_model.pkl
+2026-04-03 03:42:41,634  INFO      Anomaly detector saved : models/anomaly_detector.pkl
+2026-04-03 03:42:41,635  INFO      Decision threshold     : 0.21
+2026-04-03 17:45:20,987  INFO      Loading dataset: cs-training.csv
+2026-04-03 17:45:21,054  INFO      Dropped unnamed index column(s): ['Unnamed: 0']
+2026-04-03 17:45:21,054  INFO      Raw shape: (150000, 11)
+2026-04-03 17:45:21,057  INFO      Dataset validation complete. Shape: (150000, 11)
+2026-04-03 17:45:21,057  WARNING     [age]  | 14 out-of-range → NaN
+2026-04-03 17:45:21,057  WARNING     [DebtRatio]  | 20602 out-of-range → NaN
+2026-04-03 17:45:21,057  WARNING     [RevolvingUtilizationOfUnsecuredLines]  | 230 out-of-range → NaN
+2026-04-03 17:45:21,060  INFO        Total missing after validation: 54501/1500000 (3.6%)
+2026-04-03 17:45:21,064  INFO      All feature columns passed the missing-value threshold.
+2026-04-03 17:45:21,065  INFO      Added 5 missingness indicator columns
+2026-04-03 17:45:21,065  INFO      Numeric features    : ['RevolvingUtilizationOfUnsecuredLines', 'age', 'NumberOfTime30-59DaysPastDueNotWorse', 'DebtRatio', 'MonthlyIncome', 'NumberOfOpenCreditLinesAndLoans', 'NumberOfTimes90DaysLate', 'NumberRealEstateLoansOrLines', 'NumberOfTime60-89DaysPastDueNotWorse', 'NumberOfDependents']
+2026-04-03 17:45:21,065  INFO      Categorical features: []
+2026-04-03 17:45:21,065  INFO      Indicator columns   : ['RevolvingUtilizationOfUnsecuredLines_was_missing', 'age_was_missing', 'DebtRatio_was_missing', 'MonthlyIncome_was_missing', 'NumberOfDependents_was_missing']
+2026-04-03 17:45:21,066  INFO      Target distribution :
+SeriousDlqin2yrs
+0    0.933
+1    0.067
+Name: proportion, dtype: float64
+2026-04-03 17:45:21,095  INFO      Train: (120000, 15)  |  Test: (30000, 15)
+2026-04-03 17:45:21,095  INFO      Training ensemble (XGBoost + LightGBM + DecisionTree → LogisticRegression)...
+2026-04-03 17:45:21,095  INFO      Expected time: 3-6 minutes on 150K rows...
+2026-04-03 17:45:37,603  INFO      Training complete.
+2026-04-03 17:45:37,810  INFO      
+Threshold optimization (business cost matrix):
+2026-04-03 17:45:37,810  INFO        Cost of False Negative (miss a default): 5.0x
+2026-04-03 17:45:37,810  INFO        Cost of False Positive (reject good applicant): 1.0x
+2026-04-03 17:45:37,849  INFO        → Optimal threshold: 0.21  (expected cost=6662)
+
+2026-04-03 17:45:37,849  INFO      
+============================================================
+2026-04-03 17:45:37,849  INFO      EVALUATION RESULTS
+2026-04-03 17:45:37,849  INFO      ============================================================
+2026-04-03 17:45:38,071  INFO      ROC-AUC Score          : 0.8570
+2026-04-03 17:45:38,071  INFO      Average Precision Score: 0.3676
+2026-04-03 17:45:38,071  INFO      F1 Score (thresh=0.21): 0.4135
+2026-04-03 17:45:38,071  INFO      
+Classification Report (threshold=0.21):
+2026-04-03 17:45:38,079  INFO      
+              precision    recall  f1-score   support
+
+      Repaid       0.97      0.91      0.94     27995
+     Default       0.32      0.58      0.41      2005
+
+    accuracy                           0.89     30000
+   macro avg       0.64      0.75      0.68     30000
+weighted avg       0.92      0.89      0.90     30000
+
+2026-04-03 17:45:38,080  INFO      Confusion Matrix:
+[[25523  2472]
+ [  838  1167]]
+2026-04-03 17:45:38,080  INFO        True Positives  (defaults correctly caught) : 1167
+2026-04-03 17:45:38,080  INFO        False Negatives (missed defaults — risky!)  : 838
+2026-04-03 17:45:38,080  INFO        False Positives (good applicants rejected)  : 2472
+2026-04-03 17:45:38,080  INFO        True Negatives  (correctly approved)        : 25523
+2026-04-03 17:45:38,080  INFO      ============================================================
+
+2026-04-03 17:45:38,081  INFO      
+============================================================
+2026-04-03 17:45:38,081  INFO      DECISION TREE — Top 3 Levels (PS-9 Interpretability)
+2026-04-03 17:45:38,081  INFO      ============================================================
+2026-04-03 17:45:38,081  INFO      
+|--- NumberOfTime30-59DaysPastDueNotWorse <= -0.10
+|   |--- NumberOfTimes90DaysLate <= -0.06
+|   |   |--- RevolvingUtilizationOfUnsecuredLines <= 0.23
+|   |   |   |--- NumberOfTime60-89DaysPastDueNotWorse <= -0.06
+|   |   |   |   |--- truncated branch of depth 5
+|   |   |   |--- NumberOfTime60-89DaysPastDueNotWorse >  -0.06
+|   |   |   |   |--- truncated branch of depth 5
+|   |   |--- RevolvingUtilizationOfUnsecuredLines >  0.23
+|   |   |   |--- NumberOfTime60-89DaysPastDueNotWorse <= -0.06
+|   |   |   |   |--- truncated branch of depth 5
+|   |   |   |--- NumberOfTime60-89DaysPastDueNotWorse >  -0.06
+|   |   |   |   |--- truncated branch of depth 5
+|   |--- NumberOfTimes90DaysLate >  -0.06
+|   |   |--- NumberOfTimes90DaysLate <= 0.18
+|   |   |   |--- class: 1
+|   |   |--- NumberOfTimes90DaysLate >  0.18
+|   |   |   |--- NumberOfTimes90DaysLate <= 0.18
+|   |   |   |   |--- truncated branch of depth 5
+|   |   |   |--- NumberOfTimes90DaysLate >  0.18
+|   |   |   |   |--- truncated branch of depth 5
+|--- NumberOfTime30-59DaysPastDueNotWorse >  -0.10
+|   |--- NumberOfTime30-59DaysPastDueNotWorse <= 0.14
+|   |   |--- class: 1
+|   |--- NumberOfTime30-59DaysPastDueNotWorse >  0.14
+|   |   |--- NumberOfTime30-59DaysPastDueNotWorse <= 0.14
+|   |   |   |--- NumberOfTimes90DaysLate <= -0.06
+|   |   |   |   |--- truncated branch of depth 5
+|   |   |   |--- NumberOfTimes90DaysLate >  -0.06
+|   |   |   |   |--- truncated branch of depth 5
+|   |   |--- NumberOfTime30-59DaysPastDueNotWorse >  0.14
+|   |   |   |--- NumberOfTimes90DaysLate <= -0.06
+|   |   |   |   |--- truncated branch of depth 5
+|   |   |   |--- NumberOfTimes90DaysLate >  -0.06
+|   |   |   |   |--- truncated branch of depth 5
+
+2026-04-03 17:45:38,082  INFO      ============================================================
+
+2026-04-03 17:45:38,082  INFO      
+============================================================
+2026-04-03 17:45:38,082  INFO      FEATURE IMPORTANCE — XGBoost (Gain-based, Top 10)
+2026-04-03 17:45:38,082  INFO      ============================================================
+2026-04-03 17:45:38,082  INFO        NumberOfTime30-59DaysPastDueNotWorse          0.3285  ██████████████████████████
+2026-04-03 17:45:38,082  INFO        NumberOfTimes90DaysLate                       0.2429  ███████████████████
+2026-04-03 17:45:38,083  INFO        NumberOfTime60-89DaysPastDueNotWorse          0.1230  █████████
+2026-04-03 17:45:38,083  INFO        NumberOfOpenCreditLinesAndLoans               0.0707  █████
+2026-04-03 17:45:38,083  INFO        RevolvingUtilizationOfUnsecuredLines          0.0551  ████
+2026-04-03 17:45:38,083  INFO        age                                           0.0376  ███
+2026-04-03 17:45:38,083  INFO        MonthlyIncome_was_missing                     0.0304  ██
+2026-04-03 17:45:38,083  INFO        NumberOfDependents_was_missing                0.0291  ██
+2026-04-03 17:45:38,083  INFO        NumberRealEstateLoansOrLines                  0.0226  █
+2026-04-03 17:45:38,083  INFO        DebtRatio_was_missing                         0.0128  █
+2026-04-03 17:45:38,083  INFO      ============================================================
+
+2026-04-03 17:45:38,083  INFO      Training IsolationForest anomaly detector...
+2026-04-03 17:45:38,095  INFO        IsolationForest training on 111,979 legitimate records (non-default subset)
+2026-04-03 17:45:38,929  INFO        IsolationForest trained. Contamination set to 2%.
+2026-04-03 17:45:38,929  INFO        Applications deviating from this distribution will be flagged SUSPICIOUS.
+2026-04-03 17:45:38,933  INFO        Anomaly detector saved to: models/anomaly_detector.pkl
+2026-04-03 17:45:38,946  INFO      Main model saved to    : models/loan_model.pkl
+2026-04-03 17:45:38,946  INFO      Anomaly detector saved : models/anomaly_detector.pkl
+2026-04-03 17:45:38,946  INFO      Decision threshold     : 0.21
+2026-04-03 17:47:37,645  INFO      Loading dataset: cs-training.csv
+2026-04-03 17:47:37,692  INFO      Dropped unnamed index column(s): ['Unnamed: 0']
+2026-04-03 17:47:37,692  INFO      Raw shape: (150000, 11)
+2026-04-03 17:47:37,696  INFO      Dataset validation complete. Shape: (150000, 11)
+2026-04-03 17:47:37,696  WARNING     [age]  | 14 out-of-range → NaN
+2026-04-03 17:47:37,696  WARNING     [DebtRatio]  | 20602 out-of-range → NaN
+2026-04-03 17:47:37,696  WARNING     [RevolvingUtilizationOfUnsecuredLines]  | 230 out-of-range → NaN
+2026-04-03 17:47:37,699  INFO        Total missing after validation: 54501/1500000 (3.6%)
+2026-04-03 17:47:37,704  INFO      All feature columns passed the missing-value threshold.
+2026-04-03 17:47:37,705  INFO      Added 5 missingness indicator columns
+2026-04-03 17:47:37,705  INFO      Numeric features    : ['RevolvingUtilizationOfUnsecuredLines', 'age', 'NumberOfTime30-59DaysPastDueNotWorse', 'DebtRatio', 'MonthlyIncome', 'NumberOfOpenCreditLinesAndLoans', 'NumberOfTimes90DaysLate', 'NumberRealEstateLoansOrLines', 'NumberOfTime60-89DaysPastDueNotWorse', 'NumberOfDependents']
+2026-04-03 17:47:37,705  INFO      Categorical features: []
+2026-04-03 17:47:37,705  INFO      Indicator columns   : ['RevolvingUtilizationOfUnsecuredLines_was_missing', 'age_was_missing', 'DebtRatio_was_missing', 'MonthlyIncome_was_missing', 'NumberOfDependents_was_missing']
+2026-04-03 17:47:37,706  INFO      Target distribution :
+SeriousDlqin2yrs
+0    0.933
+1    0.067
+Name: proportion, dtype: float64
+2026-04-03 17:47:37,734  INFO      Train: (120000, 15)  |  Test: (30000, 15)
+2026-04-03 17:47:37,735  INFO      Training ensemble (XGBoost + LightGBM + DecisionTree → LogisticRegression)...
+2026-04-03 17:47:37,735  INFO      Expected time: 3-6 minutes on 150K rows...
+2026-04-03 17:47:54,029  INFO      Training complete.
+2026-04-03 17:47:54,245  INFO      
+Threshold optimization (business cost matrix):
+2026-04-03 17:47:54,245  INFO        Cost of False Negative (miss a default): 5.0x
+2026-04-03 17:47:54,245  INFO        Cost of False Positive (reject good applicant): 1.0x
+2026-04-03 17:47:54,295  INFO        → Optimal threshold: 0.21  (expected cost=6662)
+
+2026-04-03 17:47:54,295  INFO      
+============================================================
+2026-04-03 17:47:54,295  INFO      EVALUATION RESULTS
+2026-04-03 17:47:54,295  INFO      ============================================================
+2026-04-03 17:47:54,544  INFO      ROC-AUC Score          : 0.8570
+2026-04-03 17:47:54,544  INFO      Average Precision Score: 0.3676
+2026-04-03 17:47:54,544  INFO      F1 Score (thresh=0.21): 0.4135
+2026-04-03 17:47:54,544  INFO      
+Classification Report (threshold=0.21):
+2026-04-03 17:47:54,552  INFO      
+              precision    recall  f1-score   support
+
+      Repaid       0.97      0.91      0.94     27995
+     Default       0.32      0.58      0.41      2005
+
+    accuracy                           0.89     30000
+   macro avg       0.64      0.75      0.68     30000
+weighted avg       0.92      0.89      0.90     30000
+
+2026-04-03 17:47:54,553  INFO      Confusion Matrix:
+[[25523  2472]
+ [  838  1167]]
+2026-04-03 17:47:54,553  INFO        True Positives  (defaults correctly caught) : 1167
+2026-04-03 17:47:54,553  INFO        False Negatives (missed defaults — risky!)  : 838
+2026-04-03 17:47:54,553  INFO        False Positives (good applicants rejected)  : 2472
+2026-04-03 17:47:54,553  INFO        True Negatives  (correctly approved)        : 25523
+2026-04-03 17:47:54,553  INFO      ============================================================
+
+2026-04-03 17:47:54,554  INFO      
+============================================================
+2026-04-03 17:47:54,554  INFO      DECISION TREE — Top 3 Levels (PS-9 Interpretability)
+2026-04-03 17:47:54,554  INFO      ============================================================
+2026-04-03 17:47:54,554  INFO      
+|--- NumberOfTime30-59DaysPastDueNotWorse <= -0.10
+|   |--- NumberOfTimes90DaysLate <= -0.06
+|   |   |--- RevolvingUtilizationOfUnsecuredLines <= 0.23
+|   |   |   |--- NumberOfTime60-89DaysPastDueNotWorse <= -0.06
+|   |   |   |   |--- truncated branch of depth 5
+|   |   |   |--- NumberOfTime60-89DaysPastDueNotWorse >  -0.06
+|   |   |   |   |--- truncated branch of depth 5
+|   |   |--- RevolvingUtilizationOfUnsecuredLines >  0.23
+|   |   |   |--- NumberOfTime60-89DaysPastDueNotWorse <= -0.06
+|   |   |   |   |--- truncated branch of depth 5
+|   |   |   |--- NumberOfTime60-89DaysPastDueNotWorse >  -0.06
+|   |   |   |   |--- truncated branch of depth 5
+|   |--- NumberOfTimes90DaysLate >  -0.06
+|   |   |--- NumberOfTimes90DaysLate <= 0.18
+|   |   |   |--- class: 1
+|   |   |--- NumberOfTimes90DaysLate >  0.18
+|   |   |   |--- NumberOfTimes90DaysLate <= 0.18
+|   |   |   |   |--- truncated branch of depth 5
+|   |   |   |--- NumberOfTimes90DaysLate >  0.18
+|   |   |   |   |--- truncated branch of depth 5
+|--- NumberOfTime30-59DaysPastDueNotWorse >  -0.10
+|   |--- NumberOfTime30-59DaysPastDueNotWorse <= 0.14
+|   |   |--- class: 1
+|   |--- NumberOfTime30-59DaysPastDueNotWorse >  0.14
+|   |   |--- NumberOfTime30-59DaysPastDueNotWorse <= 0.14
+|   |   |   |--- NumberOfTimes90DaysLate <= -0.06
+|   |   |   |   |--- truncated branch of depth 5
+|   |   |   |--- NumberOfTimes90DaysLate >  -0.06
+|   |   |   |   |--- truncated branch of depth 5
+|   |   |--- NumberOfTime30-59DaysPastDueNotWorse >  0.14
+|   |   |   |--- NumberOfTimes90DaysLate <= -0.06
+|   |   |   |   |--- truncated branch of depth 5
+|   |   |   |--- NumberOfTimes90DaysLate >  -0.06
+|   |   |   |   |--- truncated branch of depth 5
+
+2026-04-03 17:47:54,554  INFO      ============================================================
+
+2026-04-03 17:47:54,555  INFO      
+============================================================
+2026-04-03 17:47:54,555  INFO      FEATURE IMPORTANCE — XGBoost (Gain-based, Top 10)
+2026-04-03 17:47:54,555  INFO      ============================================================
+2026-04-03 17:47:54,555  INFO        NumberOfTime30-59DaysPastDueNotWorse          0.3285  ██████████████████████████
+2026-04-03 17:47:54,555  INFO        NumberOfTimes90DaysLate                       0.2429  ███████████████████
+2026-04-03 17:47:54,555  INFO        NumberOfTime60-89DaysPastDueNotWorse          0.1230  █████████
+2026-04-03 17:47:54,555  INFO        NumberOfOpenCreditLinesAndLoans               0.0707  █████
+2026-04-03 17:47:54,555  INFO        RevolvingUtilizationOfUnsecuredLines          0.0551  ████
+2026-04-03 17:47:54,556  INFO        age                                           0.0376  ███
+2026-04-03 17:47:54,556  INFO        MonthlyIncome_was_missing                     0.0304  ██
+2026-04-03 17:47:54,556  INFO        NumberOfDependents_was_missing                0.0291  ██
+2026-04-03 17:47:54,556  INFO        NumberRealEstateLoansOrLines                  0.0226  █
+2026-04-03 17:47:54,556  INFO        DebtRatio_was_missing                         0.0128  █
+2026-04-03 17:47:54,556  INFO      ============================================================
+
+2026-04-03 17:47:54,556  INFO      Training IsolationForest anomaly detector...
+2026-04-03 17:47:54,563  INFO        IsolationForest training on 111,979 legitimate records (non-default subset)
+2026-04-03 17:47:55,369  INFO        IsolationForest trained. Contamination set to 2%.
+2026-04-03 17:47:55,369  INFO        Applications deviating from this distribution will be flagged SUSPICIOUS.
+2026-04-03 17:47:55,372  INFO        Anomaly detector saved to: models/anomaly_detector.pkl
+2026-04-03 17:47:55,384  INFO      Main model saved to    : models/loan_model.pkl
+2026-04-03 17:47:55,384  INFO      Anomaly detector saved : models/anomaly_detector.pkl
+2026-04-03 17:47:55,384  INFO      Decision threshold     : 0.21
+2026-04-03 17:48:50,540  INFO      Loading dataset: cs-training.csv
+2026-04-03 17:48:50,588  INFO      Dropped unnamed index column(s): ['Unnamed: 0']
+2026-04-03 17:48:50,588  INFO      Raw shape: (150000, 11)
+2026-04-03 17:48:50,592  INFO      Dataset validation complete. Shape: (150000, 11)
+2026-04-03 17:48:50,592  WARNING     [age]  | 14 out-of-range → NaN
+2026-04-03 17:48:50,592  WARNING     [DebtRatio]  | 20602 out-of-range → NaN
+2026-04-03 17:48:50,593  WARNING     [RevolvingUtilizationOfUnsecuredLines]  | 230 out-of-range → NaN
+2026-04-03 17:48:50,595  INFO        Total missing after validation: 54501/1500000 (3.6%)
+2026-04-03 17:48:50,599  INFO      All feature columns passed the missing-value threshold.
+2026-04-03 17:48:50,600  INFO      Added 5 missingness indicator columns
+2026-04-03 17:48:50,600  INFO      Numeric features    : ['RevolvingUtilizationOfUnsecuredLines', 'age', 'NumberOfTime30-59DaysPastDueNotWorse', 'DebtRatio', 'MonthlyIncome', 'NumberOfOpenCreditLinesAndLoans', 'NumberOfTimes90DaysLate', 'NumberRealEstateLoansOrLines', 'NumberOfTime60-89DaysPastDueNotWorse', 'NumberOfDependents']
+2026-04-03 17:48:50,600  INFO      Categorical features: []
+2026-04-03 17:48:50,600  INFO      Indicator columns   : ['RevolvingUtilizationOfUnsecuredLines_was_missing', 'age_was_missing', 'DebtRatio_was_missing', 'MonthlyIncome_was_missing', 'NumberOfDependents_was_missing']
+2026-04-03 17:48:50,601  INFO      Target distribution :
+SeriousDlqin2yrs
+0    0.933
+1    0.067
+Name: proportion, dtype: float64
+2026-04-03 17:48:50,629  INFO      Train: (120000, 15)  |  Test: (30000, 15)
+2026-04-03 17:48:50,629  INFO      Training ensemble (XGBoost + LightGBM + DecisionTree → LogisticRegression)...
+2026-04-03 17:48:50,629  INFO      Expected time: 3-6 minutes on 150K rows...
+2026-04-03 17:49:06,170  INFO      Training complete.
+2026-04-03 17:49:06,402  INFO      
+Threshold optimization (business cost matrix):
+2026-04-03 17:49:06,402  INFO        Cost of False Negative (miss a default): 5.0x
+2026-04-03 17:49:06,402  INFO        Cost of False Positive (reject good applicant): 1.0x
+2026-04-03 17:49:06,436  INFO        → Optimal threshold: 0.21  (expected cost=6662)
+
+2026-04-03 17:49:06,436  INFO      
+============================================================
+2026-04-03 17:49:06,436  INFO      EVALUATION RESULTS
+2026-04-03 17:49:06,436  INFO      ============================================================
+2026-04-03 17:49:06,658  INFO      ROC-AUC Score          : 0.8570
+2026-04-03 17:49:06,661  INFO      Average Precision Score: 0.3676
+2026-04-03 17:49:06,661  INFO      F1 Score (thresh=0.21): 0.4135
+2026-04-03 17:49:06,661  INFO      
+Classification Report (threshold=0.21):
+2026-04-03 17:49:06,666  INFO      
+              precision    recall  f1-score   support
+
+      Repaid       0.97      0.91      0.94     27995
+     Default       0.32      0.58      0.41      2005
+
+    accuracy                           0.89     30000
+   macro avg       0.64      0.75      0.68     30000
+weighted avg       0.92      0.89      0.90     30000
+
+2026-04-03 17:49:06,667  INFO      Confusion Matrix:
+[[25523  2472]
+ [  838  1167]]
+2026-04-03 17:49:06,667  INFO        True Positives  (defaults correctly caught) : 1167
+2026-04-03 17:49:06,667  INFO        False Negatives (missed defaults — risky!)  : 838
+2026-04-03 17:49:06,667  INFO        False Positives (good applicants rejected)  : 2472
+2026-04-03 17:49:06,667  INFO        True Negatives  (correctly approved)        : 25523
+2026-04-03 17:49:06,667  INFO      ============================================================
+
+2026-04-03 17:49:06,668  INFO      
+============================================================
+2026-04-03 17:49:06,668  INFO      DECISION TREE — Top 3 Levels (PS-9 Interpretability)
+2026-04-03 17:49:06,668  INFO      ============================================================
+2026-04-03 17:49:06,668  INFO      
+|--- NumberOfTime30-59DaysPastDueNotWorse <= -0.10
+|   |--- NumberOfTimes90DaysLate <= -0.06
+|   |   |--- RevolvingUtilizationOfUnsecuredLines <= 0.23
+|   |   |   |--- NumberOfTime60-89DaysPastDueNotWorse <= -0.06
+|   |   |   |   |--- truncated branch of depth 5
+|   |   |   |--- NumberOfTime60-89DaysPastDueNotWorse >  -0.06
+|   |   |   |   |--- truncated branch of depth 5
+|   |   |--- RevolvingUtilizationOfUnsecuredLines >  0.23
+|   |   |   |--- NumberOfTime60-89DaysPastDueNotWorse <= -0.06
+|   |   |   |   |--- truncated branch of depth 5
+|   |   |   |--- NumberOfTime60-89DaysPastDueNotWorse >  -0.06
+|   |   |   |   |--- truncated branch of depth 5
+|   |--- NumberOfTimes90DaysLate >  -0.06
+|   |   |--- NumberOfTimes90DaysLate <= 0.18
+|   |   |   |--- class: 1
+|   |   |--- NumberOfTimes90DaysLate >  0.18
+|   |   |   |--- NumberOfTimes90DaysLate <= 0.18
+|   |   |   |   |--- truncated branch of depth 5
+|   |   |   |--- NumberOfTimes90DaysLate >  0.18
+|   |   |   |   |--- truncated branch of depth 5
+|--- NumberOfTime30-59DaysPastDueNotWorse >  -0.10
+|   |--- NumberOfTime30-59DaysPastDueNotWorse <= 0.14
+|   |   |--- class: 1
+|   |--- NumberOfTime30-59DaysPastDueNotWorse >  0.14
+|   |   |--- NumberOfTime30-59DaysPastDueNotWorse <= 0.14
+|   |   |   |--- NumberOfTimes90DaysLate <= -0.06
+|   |   |   |   |--- truncated branch of depth 5
+|   |   |   |--- NumberOfTimes90DaysLate >  -0.06
+|   |   |   |   |--- truncated branch of depth 5
+|   |   |--- NumberOfTime30-59DaysPastDueNotWorse >  0.14
+|   |   |   |--- NumberOfTimes90DaysLate <= -0.06
+|   |   |   |   |--- truncated branch of depth 5
+|   |   |   |--- NumberOfTimes90DaysLate >  -0.06
+|   |   |   |   |--- truncated branch of depth 5
+
+2026-04-03 17:49:06,668  INFO      ============================================================
+
+2026-04-03 17:49:06,669  INFO      
+============================================================
+2026-04-03 17:49:06,669  INFO      FEATURE IMPORTANCE — XGBoost (Gain-based, Top 10)
+2026-04-03 17:49:06,669  INFO      ============================================================
+2026-04-03 17:49:06,669  INFO        NumberOfTime30-59DaysPastDueNotWorse          0.3285  ██████████████████████████
+2026-04-03 17:49:06,669  INFO        NumberOfTimes90DaysLate                       0.2429  ███████████████████
+2026-04-03 17:49:06,669  INFO        NumberOfTime60-89DaysPastDueNotWorse          0.1230  █████████
+2026-04-03 17:49:06,669  INFO        NumberOfOpenCreditLinesAndLoans               0.0707  █████
+2026-04-03 17:49:06,669  INFO        RevolvingUtilizationOfUnsecuredLines          0.0551  ████
+2026-04-03 17:49:06,669  INFO        age                                           0.0376  ███
+2026-04-03 17:49:06,669  INFO        MonthlyIncome_was_missing                     0.0304  ██
+2026-04-03 17:49:06,669  INFO        NumberOfDependents_was_missing                0.0291  ██
+2026-04-03 17:49:06,669  INFO        NumberRealEstateLoansOrLines                  0.0226  █
+2026-04-03 17:49:06,669  INFO        DebtRatio_was_missing                         0.0128  █
+2026-04-03 17:49:06,669  INFO      ============================================================
+
+2026-04-03 17:49:06,669  INFO      Training IsolationForest anomaly detector...
+2026-04-03 17:49:06,679  INFO        IsolationForest training on 111,979 legitimate records (non-default subset)
+2026-04-03 17:49:07,495  INFO        IsolationForest trained. Contamination set to 2%.
+2026-04-03 17:49:07,495  INFO        Applications deviating from this distribution will be flagged SUSPICIOUS.
+2026-04-03 17:49:07,499  INFO        Anomaly detector saved to: models/anomaly_detector.pkl
+2026-04-03 17:49:07,512  INFO      Main model saved to    : models/loan_model.pkl
+2026-04-03 17:49:07,512  INFO      Anomaly detector saved : models/anomaly_detector.pkl
+2026-04-03 17:49:07,512  INFO      Decision threshold     : 0.21

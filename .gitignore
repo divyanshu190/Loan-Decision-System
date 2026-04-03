@@ -1,6 +1,7 @@
-__pycache__/
-*.pyc
+.DS_Store
+*.pdf
+*.pptx
+*.csv
 models/
 *.pkl
-logs/
-.env
+	
