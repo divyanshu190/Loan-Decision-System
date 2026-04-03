@@ -1,7 +1,6 @@
-.DS_Store
-*.pdf
-*.pptx
-*.csv
+__pycache__/
+*.pyc
+logs/
 models/
-*.pkl
+.DS_Store	
 	
