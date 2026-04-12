@@ -2,7 +2,7 @@
 
 > AI-powered loan default prediction with real-time risk scoring, explainability, and what-if analysis.
 
-Built for **Data Heist 2026** · UC Irvine Datathon
+Built for **Data Heist 2026** ·
 
 ---
 
@@ -229,4 +229,4 @@ MIT License
 
 ## 👤 Author
 
-**Divyanshu** · Data Heist 2026 · UC Irvine Datathon
+**Divyanshu** 
